@@ -5,7 +5,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from 'src/config/config.service';
-import { IUser, User } from './entities/user.entity';
+import { IUser, User } from '../entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

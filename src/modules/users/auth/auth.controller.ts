@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ROLE } from 'src/common/constants/user.enum';
+import { ROLE } from 'src/modules/users/enums/user.enum';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { LoginDto } from '../dto/login.dto';
+import { SignupDto } from '../dto/signup.dto';
+import { IUser } from '../entities/user.entity';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
-import { IUser } from './entities/user.entity';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })

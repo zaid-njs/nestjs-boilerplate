@@ -101,3 +101,6 @@ export const MongoErrorHandlingFn = (
 export const matchRoles = (roles: string[], userRole: string) => {
   return roles.includes(userRole);
 };
+
+export const generateOtpCode = (): number =>
+  Math.floor(10000 + Math.random() * 90000) + 100000;

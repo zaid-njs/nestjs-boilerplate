@@ -8,7 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ROLE } from 'src/common/constants/user.enum';
+import { ROLE } from 'src/modules/users/enums/user.enum';
 
 export class SignupDto {
   @ApiProperty()

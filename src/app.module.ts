@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AnyExceptionFilter } from './common/filters/exception.filter';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { ConfigModule } from './config/config.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
     CacheModule.register(),
     ConfigModule.register({ folder: './env' }),
     UsersModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

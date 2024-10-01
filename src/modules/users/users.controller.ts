@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ROLE } from 'src/common/constants/user.enum';
+import { ROLE } from 'src/modules/users/enums/user.enum';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { IUser } from './entities/user.entity';

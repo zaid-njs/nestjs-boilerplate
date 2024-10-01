@@ -2,6 +2,7 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { yellow } from 'cli-color';
 import { ConfigService } from './config.service';
+import { EmailService } from './email.service';
 
 @Global()
 @Module({
@@ -30,8 +31,9 @@ export class ConfigModule {
           useValue: options,
         },
         ConfigService,
+        EmailService,
       ],
-      exports: [ConfigService],
+      exports: [ConfigService, EmailService],
     };
   }
 }

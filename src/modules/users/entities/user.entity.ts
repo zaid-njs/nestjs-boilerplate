@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { compare, hash } from 'bcryptjs';
 import { HydratedDocument } from 'mongoose';
-import { ROLE, STATUS } from 'src/common/constants/user.enum';
+import { ROLE, STATUS } from 'src/modules/users/enums/user.enum';
 import validator from 'validator';
 
 @Schema({ timestamps: true })
