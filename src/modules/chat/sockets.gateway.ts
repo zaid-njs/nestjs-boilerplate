@@ -9,13 +9,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { italic, red, yellow } from 'cli-color';
+import { green, italic, red } from 'cli-color';
 import { Model } from 'mongoose';
 import { Server, Socket } from 'socket.io';
+import { IUser, User } from '../users/entities/user.entity';
 import { ChatService } from './chat.service';
 import { Chat, IChat } from './entities/chat.entity';
 import { IRoom, Room } from './entities/room.entity';
-import { IUser, User } from '../users/entities/user.entity';
 
 @WebSocketGateway()
 export class SocketsGateway
@@ -31,7 +31,7 @@ export class SocketsGateway
   ) {}
 
   afterInit(server: Server) {
-    console.log(`${yellow('SOCKET INITIALIZED')}`);
+    console.log(green('CHAT SOCKET GATEWAY INITIALIZED'));
   }
 
   // when user joins the app
@@ -69,7 +69,7 @@ export class SocketsGateway
       const roomIds = rooms.map((room) => room._id.toHexString());
 
       if (roomIds.length > 0)
-        client.broadcast.to(roomIds).emit('chat-delivered');
+        client.broadcast.to(roomIds).emit('chat-delivered', { id: payload.id });
 
       console.log(italic(`User Connected: ${payload.id}`));
     } catch (error) {
@@ -124,7 +124,9 @@ export class SocketsGateway
         },
       ).lean();
 
-      client.broadcast.to(payload.roomId).emit('chat-read');
+      client.broadcast
+        .to(payload.roomId)
+        .emit('chat-read', { id: user._id.toHexString() });
     } catch (error) {
       console.log(error.message);
     }

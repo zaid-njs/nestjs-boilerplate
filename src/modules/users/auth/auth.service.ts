@@ -97,7 +97,7 @@ export class AuthService {
     return this.createSendToken(newUser);
   }
 
-  async login(loginUserDto: LoginDto): Promise<any> {
+  async login(loginUserDto: LoginDto): Promise<{ token: string; user: IUser }> {
     const { email, password, fcmToken } = loginUserDto;
 
     const user = await this.User.findOne({
@@ -135,7 +135,7 @@ export class AuthService {
     return this.createSendToken(user);
   }
 
-  async logout(fcmToken: string, id: string): Promise<any> {
+  async logout(fcmToken: string, id: string): Promise<void> {
     await this.User.findByIdAndUpdate(id, {
       lastLogin: Date.now(),
       ...this.removeFCMToken(fcmToken),

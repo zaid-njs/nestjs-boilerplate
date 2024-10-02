@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { yellow } from 'cli-color';
+import { green, yellow } from 'cli-color';
 import { ConfigService } from './config.service';
 import { EmailService } from './email.service';
 
@@ -14,8 +14,12 @@ import { EmailService } from './email.service';
           '<PASSWORD>',
           configService.get('MONGODB_PASSWORD'),
         );
-        console.log(yellow('CONNECTING TO DATABASE...'));
-        return { uri };
+        return {
+          uri,
+          onConnectionCreate: () => {
+            console.log(green('DATABASE CONNECTED SUCCESSFULLY'));
+          },
+        };
       },
       inject: [ConfigService],
     }),

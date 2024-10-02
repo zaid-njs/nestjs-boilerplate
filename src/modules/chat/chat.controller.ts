@@ -7,14 +7,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { pagination } from 'src/common/utils/types.util';
 import { IUser } from '../users/entities/user.entity';
 import { ROLE } from '../users/enums/user.enum';
 import { ChatService } from './chat.service';
 import { REFERENCE } from './enums/chat.enum';
-import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Chat')
 @Controller({ path: 'chats', version: '1' })
@@ -25,9 +26,10 @@ export class ChatController {
   @Auth(ROLE.USER, ROLE.ADMIN)
   async getRooms(
     @GetUser() user: IUser,
-    @Query() query: pagination & { search: string },
+    @Query() query: { search: string },
+    @Pagination() pagination: pagination,
   ) {
-    const data = await this.chatService.getRooms(user, query);
+    const data = await this.chatService.getRooms(user, query, pagination);
 
     return { data };
   }
@@ -38,9 +40,9 @@ export class ChatController {
   async chatMessages(
     @GetUser() user: IUser,
     @Param('room') room: string,
-    @Query() query: pagination,
+    @Pagination() pagination: pagination,
   ) {
-    const data = await this.chatService.chatMessages(user, room, query);
+    const data = await this.chatService.chatMessages(user, room, pagination);
     return { data };
   }
 

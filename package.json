@@ -41,6 +41,7 @@
     "cross-env": "^7.0.3",
     "ejs": "^3.1.10",
     "express-basic-auth": "^1.2.1",
+    "firebase-admin": "^12.6.0",
     "googleapis": "^144.0.0",
     "html-to-text": "^9.0.5",
     "moment": "^2.30.1",

@@ -8,6 +8,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { ConfigModule } from './config/config.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { UsersModule } from './modules/users/users.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from './modules/users/users.module';
     ConfigModule.register({ folder: './env' }),
     UsersModule,
     ChatModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

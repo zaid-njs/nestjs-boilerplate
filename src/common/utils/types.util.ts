@@ -1,4 +1,4 @@
 export type pagination = {
-  page?: number;
-  limit?: number;
+  skip: number;
+  limit: number;
 };

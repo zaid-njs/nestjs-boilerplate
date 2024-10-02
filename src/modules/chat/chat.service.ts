@@ -8,11 +8,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Socket } from 'socket.io';
 import { pagination } from 'src/common/utils/types.util';
-import { SocketsGateway } from './sockets.gateway';
+import { FLAG } from '../notifications/enums/notification.enum';
+import { notification } from '../notifications/interfaces/notification.interface';
+import { NotificationsService } from '../notifications/notifications.service';
 import { IUser, User } from '../users/entities/user.entity';
+import { ROLE } from '../users/enums/user.enum';
 import { Chat, IChat } from './entities/chat.entity';
 import { IRoom, Room, RoomUser } from './entities/room.entity';
 import { REFERENCE } from './enums/chat.enum';
+import { SocketsGateway } from './sockets.gateway';
 
 @Injectable()
 export class ChatService {
@@ -22,17 +26,14 @@ export class ChatService {
     @InjectModel(Chat.name) private readonly Chat: Model<IChat>,
     @Inject(forwardRef(() => SocketsGateway))
     private readonly socket: SocketsGateway,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async getRooms(
     user: IUser,
-    query: pagination & { search: string },
+    query: { search: string },
+    pagination: pagination,
   ): Promise<{ rooms: IRoom[]; totalCount: number }> {
-    // for pagination
-    const page = query.page * 1 || 1;
-    const limit = query.limit * 1 || 40;
-    const skip = (page - 1) * limit;
-
     const aggregation = [
       {
         $match: {
@@ -121,10 +122,10 @@ export class ChatService {
         $sort: { lastChatted: -1 } as { [key: string]: -1 | 1 },
       },
       {
-        $skip: skip,
+        $skip: pagination.skip,
       },
       {
-        $limit: limit,
+        $limit: pagination.limit,
       },
     ];
 
@@ -143,11 +144,7 @@ export class ChatService {
     };
   }
 
-  async chatMessages(user: IUser, room: string, query: pagination) {
-    const page = query.page * 1 || 1;
-    const limit = query.limit * 1 || 40;
-    const skip = (page - 1) * limit;
-
+  async chatMessages(user: IUser, room: string, pagination: pagination) {
     if (!room) throw new NotFoundException('Room Id is missing');
 
     const dbQuery = {
@@ -156,7 +153,11 @@ export class ChatService {
     };
 
     const [messages, totalCount] = await Promise.all([
-      this.Chat.find(dbQuery).sort('createdAt').skip(skip).limit(limit).lean(),
+      this.Chat.find(dbQuery)
+        .sort('createdAt')
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
       this.Chat.countDocuments(dbQuery),
     ]);
 
@@ -218,6 +219,7 @@ export class ChatService {
 
     return room as IRoom;
   }
+
   async createRoom(payload: {
     reference?: REFERENCE;
     users: string[];
@@ -264,7 +266,7 @@ export class ChatService {
       readBy,
     });
 
-    await chat.populate('from');
+    await chat.populate(['from', 'to']);
 
     room = await this.Room.findByIdAndUpdate(
       roomId,
@@ -285,11 +287,32 @@ export class ChatService {
       payload.client.broadcast.to(roomId).emit('chat-message', { chat });
     }
 
+    await Promise.all(
+      chat.to.map((toUser) => {
+        const notification: notification = {
+          senderMode: ROLE.USER,
+          receiver: to[0],
+          receiverUser: {
+            inAppNotifications: toUser.inAppNotifications,
+            pushNotifications: toUser.pushNotifications,
+          },
+          title: 'New Message',
+          message: `${chat.from.firstName + '' + chat.from.lastName} send you a message`,
+          fcmToken: toUser.fcmTokens,
+          socket: toUser.socketIds,
+          payload: { room: roomId },
+          sender: from,
+          flag: FLAG.CHAT,
+        };
+        return this.notificationsService.createNotification(notification);
+      }),
+    );
+
     return { room, chat };
   }
 
   async getAdminId() {
-    const admin = await this.User.findOne({ role: 'admin' }).lean();
+    const admin = await this.User.findOne({ role: ROLE.ADMIN }).lean();
     return admin._id;
   }
 
