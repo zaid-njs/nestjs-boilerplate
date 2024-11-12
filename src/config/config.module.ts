@@ -1,8 +1,7 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { green, yellow } from 'cli-color';
+import { bgGreen } from 'cli-color';
 import { ConfigService } from './config.service';
-import { EmailService } from './email.service';
 
 @Global()
 @Module({
@@ -17,7 +16,7 @@ import { EmailService } from './email.service';
         return {
           uri,
           onConnectionCreate: () => {
-            console.log(green('DATABASE CONNECTED SUCCESSFULLY'));
+            console.log(bgGreen('DATABASE CONNECTED SUCCESSFULLY'));
           },
         };
       },
@@ -35,9 +34,8 @@ export class ConfigModule {
           useValue: options,
         },
         ConfigService,
-        EmailService,
       ],
-      exports: [ConfigService, EmailService],
+      exports: [ConfigService],
     };
   }
 }

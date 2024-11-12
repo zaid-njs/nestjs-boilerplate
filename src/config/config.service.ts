@@ -16,10 +16,25 @@ export class ConfigService {
       options.folder,
       filePath,
     );
-    this.envConfig = dotenv.parse(fs.readFileSync(envFile));
+
+    if (!fs.existsSync(envFile)) {
+      throw new Error(`Config file ${envFile} does not exist`);
+    }
+
+    try {
+      const config = dotenv.parse(fs.readFileSync(envFile));
+      this.envConfig = { ...config, ...process.env };
+    } catch (error) {
+      throw new Error(`Error reading config file ${envFile}: ${error.message}`);
+    }
   }
 
   get(key: string): string {
-    return this.envConfig[key];
+    const value = this.envConfig[key];
+    if (!value) {
+      console.log(`Config key "${key}" not found`);
+      return '';
+    }
+    return value;
   }
 }

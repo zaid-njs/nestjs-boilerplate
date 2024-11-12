@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 
 const normalWord = (word?: string): string =>
   word.replace(/([A-Z]+)/g, ' $1').replace(/([A-Z][a-z])/g, '$1');
@@ -104,3 +105,17 @@ export const matchRoles = (roles: string[], userRole: string) => {
 
 export const generateOtpCode = (): number =>
   Math.floor(10000 + Math.random() * 90000) + 100000;
+
+export const generateRandomPassword = (length: number = 12): string => {
+  const allCharacters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+  const charactersLength = allCharacters.length;
+  const randomIndices = randomBytes(length);
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    password += allCharacters[randomIndices[i] % charactersLength];
+  }
+
+  return password;
+};

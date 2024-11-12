@@ -1,17 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { ROLE } from 'src/modules/users/enums/user.enum';
-import { FLAG } from '../enums/notification.enum';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Room } from 'src/modules/chat/entities/room.entity';
+import { FLAG } from '../enums/notification.enum';
 
 @Schema()
 class PayloadSchema {
   @Prop({
-    type: Types.ObjectId,
-    ref: Room.name,
+    type: String,
   })
-  room: Types.ObjectId;
+  matchId: string;
 }
 
 @Schema({ timestamps: true })
@@ -20,10 +17,10 @@ export class Notification {
 
   @Prop({
     type: String,
-    enum: ROLE,
+    enum: ['user', 'admin'],
     required: [true, 'sender mode is required'],
   })
-  senderMode: ROLE;
+  senderMode: 'user' | 'admin';
 
   @Prop({
     type: String,

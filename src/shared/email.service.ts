@@ -3,7 +3,7 @@ import { renderFile } from 'ejs';
 import { htmlToText } from 'html-to-text';
 import * as nodemailer from 'nodemailer';
 import { join } from 'path';
-import { ConfigService } from './config.service';
+import { ConfigService } from 'src/config/config.service';
 
 interface EmailUser {
   email: string;
@@ -12,13 +12,7 @@ interface EmailUser {
 
 @Injectable()
 export class EmailService {
-  private from: string;
-  private baseUrl: string;
-
-  constructor(private readonly configService: ConfigService) {
-    this.from = this.configService.get('EMAIL_FROM');
-    this.baseUrl = this.configService.get('API_HOSTED_URL');
-  }
+  constructor(private readonly configService: ConfigService) {}
 
   newTransport() {
     // SendGrid
@@ -44,15 +38,10 @@ export class EmailService {
     let attachments = [];
     const { email, firstName } = user;
 
-    // 1) Render HTML based on a pug template
-    const _path: string = join(
-      __dirname,
-      '..',
-      '..',
-      'views',
-      'email',
-      `${template}.ejs`,
-    );
+    const _path: string =
+      process.env.NODE_ENV === 'production'
+        ? join(__dirname, '..', '..', 'views', 'email', `${template}.ejs`)
+        : join(__dirname, '..', 'views', 'email', `${template}.ejs`);
 
     const html = await renderFile(_path, {
       firstName: firstName,
@@ -60,7 +49,7 @@ export class EmailService {
       to: email,
       subject,
       payload,
-      baseUrl: this.baseUrl,
+      baseUrl: this.configService.get('API_HOSTED_URL'),
     });
 
     if (!!payload?.attachments) {
@@ -69,9 +58,8 @@ export class EmailService {
       });
     }
 
-    // 2) Define email options
     const mailOptions = {
-      from: this.from,
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject,
       html: html,
@@ -79,21 +67,15 @@ export class EmailService {
       attachments: attachments,
     };
 
-    // 3) Create a transport and send email
     await this.newTransport().sendMail(mailOptions);
-    console.log('Email Sent Successfully');
   }
 
   async sendForgotPassword(user: EmailUser, payload: object) {
     await this.send(user, 'forgotPassword', 'Forgot Password', '', payload);
   }
 
-  async sendClientCredentials(user: EmailUser, payload: object) {
-    await this.send(user, 'sendCredential', 'Client Credentials', '', payload);
-  }
-
-  async sendEmailVerification(user: EmailUser, payload: object) {
-    await this.send(user, 'verifyEmail', 'Email Verification', '', payload);
+  async sendSignupEmail(user: EmailUser, payload: object) {
+    await this.send(user, 'signupOtp', 'Email Verification', '', payload);
   }
 
   async sendOtpResend(user: EmailUser, payload: object) {

@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(User.name)
-    private readonly User: Model<IUser>,
+    private readonly Users: Model<IUser>,
   ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { id, iat } = payload;
 
     // fetching the user info.
-    const user: IUser = await this.User.findById(id);
+    const user: IUser = await this.Users.findById(id);
 
     // 1) Check if user still exists
     if (!user)

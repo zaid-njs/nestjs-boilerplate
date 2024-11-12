@@ -9,7 +9,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { green, italic, red } from 'cli-color';
+import { bgGreen, italic, red } from 'cli-color';
 import { Model } from 'mongoose';
 import { Server, Socket } from 'socket.io';
 import { IUser, User } from '../users/entities/user.entity';
@@ -31,7 +31,7 @@ export class SocketsGateway
   ) {}
 
   afterInit(server: Server) {
-    console.log(green('CHAT SOCKET GATEWAY INITIALIZED'));
+    console.log(bgGreen('CHAT SOCKET GATEWAY INITIALIZED'));
   }
 
   // when user joins the app

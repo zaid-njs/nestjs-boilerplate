@@ -9,7 +9,10 @@ import { SeenNotificationDto } from './dto/seen-notification.dto';
 import { NotificationsService } from './notifications.service';
 
 @ApiTags('Notifications')
-@Controller('notifications')
+@Controller({
+  path: 'notifications',
+  version: '1',
+})
 export class NotificationsController {
   constructor(private readonly notificationService: NotificationsService) {}
 

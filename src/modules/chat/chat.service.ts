@@ -5,11 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { pagination } from 'src/common/utils/types.util';
 import { FLAG } from '../notifications/enums/notification.enum';
-import { notification } from '../notifications/interfaces/notification.interface';
 import { NotificationsService } from '../notifications/notifications.service';
 import { IUser, User } from '../users/entities/user.entity';
 import { ROLE } from '../users/enums/user.enum';
@@ -289,22 +288,15 @@ export class ChatService {
 
     await Promise.all(
       chat.to.map((toUser) => {
-        const notification: notification = {
-          senderMode: ROLE.USER,
-          receiver: to[0],
-          receiverUser: {
-            inAppNotifications: toUser.inAppNotifications,
-            pushNotifications: toUser.pushNotifications,
-          },
+        return this.notificationsService.createNotification({
+          senderMode: 'user',
+          from: new Types.ObjectId(from),
+          to: toUser,
           title: 'New Message',
           message: `${chat.from.firstName + '' + chat.from.lastName} send you a message`,
-          fcmToken: toUser.fcmTokens,
-          socket: toUser.socketIds,
-          payload: { room: roomId },
-          sender: from,
           flag: FLAG.CHAT,
-        };
-        return this.notificationsService.createNotification(notification);
+          payload: { room: roomId },
+        });
       }),
     );
 

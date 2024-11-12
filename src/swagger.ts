@@ -28,30 +28,38 @@ export function setupSwagger(
     deepScanRoutes: true, // Ensure it picks up versioned routes
   });
 
-  const swaggerUser = configService.get('SWAGGER_USERNAME');
-  const swaggerPassword = configService.get('SWAGGER_PASSWORD');
-
   if (process.env.NODE_ENV === 'production') {
+    const swaggerUser = configService.get('SWAGGER_USERNAME');
+    const swaggerPassword = configService.get('SWAGGER_PASSWORD');
+
     if (!swaggerUser || !swaggerPassword) {
-      throw new Error(
+      console.log(
         'SWAGGER_USERNAME and SWAGGER_PASSWORD must be set in production.',
       );
+    } else {
+      app.use(
+        ['/docs', '/docs-json'],
+        basicAuth({
+          challenge: true,
+          users: { [swaggerUser]: swaggerPassword },
+        }),
+      );
+
+      // Setup Swagger UI and JSON documentation
+      SwaggerModule.setup('/docs', app, document, {
+        swaggerOptions: {
+          persistAuthorization: true, // Keeps the token persistent
+        },
+        customSiteTitle: `${appName} API Docs`, // Custom Swagger title
+      });
     }
-
-    app.use(
-      ['/docs', '/docs-json'],
-      basicAuth({
-        challenge: true,
-        users: { [swaggerUser]: swaggerPassword },
-      }),
-    );
+  } else {
+    // Setup Swagger UI and JSON documentation
+    SwaggerModule.setup('/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true, // Keeps the token persistent
+      },
+      customSiteTitle: `${appName} API Docs`, // Custom Swagger title
+    });
   }
-
-  // Setup Swagger UI and JSON documentation
-  SwaggerModule.setup('/docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true, // Keeps the token persistent
-    },
-    customSiteTitle: `${appName} API Docs`, // Custom Swagger title
-  });
 }

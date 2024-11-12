@@ -7,10 +7,12 @@ import {
 import { NotificationSocketsGateway } from './notification-sockets.gateway';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
+import { UsersModule } from '../users/users.module';
 
 @Global()
 @Module({
   imports: [
+    UsersModule,
     MongooseModule.forFeature([
       { name: Notification.name, schema: NotificationSchema },
     ]),

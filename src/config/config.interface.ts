@@ -1,6 +1,8 @@
 export interface EnvConfig {
+  [key: string]: string;
+
   //BASIC CREDENTIALS
-  PORT?: number;
+  PORT?: string;
   APP_NAME?: string;
   APP_VERSION?: string;
   WEB_HOSTED_URL?: string;
@@ -18,4 +20,8 @@ export interface EnvConfig {
   EMAIL_FROM?: string;
   SENDGRID_USERNAME?: string;
   SENDGRID_PASSWORD?: string;
+
+  // SWAGGER CREDENTIALS
+  SWAGGER_USERNAME?: string;
+  SWAGGER_PASSWORD?: string;
 }

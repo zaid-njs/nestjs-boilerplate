@@ -7,16 +7,18 @@ import { AnyExceptionFilter } from './common/filters/exception.filter';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { ConfigModule } from './config/config.module';
 import { ChatModule } from './modules/chat/chat.module';
-import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { UsersModule } from './modules/users/users.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
     CacheModule.register(),
     ConfigModule.register({ folder: './env' }),
     UsersModule,
-    ChatModule,
     NotificationsModule,
+    SharedModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

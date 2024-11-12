@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class SendOtpDto {
-  // ==================== REQUIRED FIELDS ==========================
   @ApiProperty({
     description: 'Email of user',
     default: 'test@yopmail.com',
@@ -11,7 +10,8 @@ export class SendOtpDto {
   @IsEmail()
   email: string;
 
-  // ==================== SERVER SIDE FIELDS ==========================
-
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
   code: number;
 }
