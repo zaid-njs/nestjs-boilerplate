@@ -32,6 +32,7 @@ class RoomUser {
 }
 
 const RoomUserSchema = SchemaFactory.createForClass(RoomUser);
+type IRoomUser = HydratedDocument<RoomUser>;
 
 @Schema({ timestamps: true })
 class Room {
@@ -39,7 +40,7 @@ class Room {
     type: [RoomUserSchema],
     default: [],
   })
-  users: RoomUser[];
+  users: IRoomUser[];
 
   @Prop({ type: LastMessageSchema, default: null })
   lastMessage: LastMessage;
@@ -74,4 +75,4 @@ RoomSchema.pre('save', function () {
   });
 });
 
-export { IRoom, Room, RoomSchema, RoomUser };
+export { IRoom, Room, RoomSchema, IRoomUser };

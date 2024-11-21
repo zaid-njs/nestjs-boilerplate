@@ -44,10 +44,9 @@ export class SocketsGateway
       if (!payload?.id)
         throw new Error(italic(red('Socket Error: Payload is empty')));
 
-      const { socketIds } = await this.User.findOne({ _id: payload?.id })
-        .select('socketIds')
-        .lean();
-
+      const { socketIds } = await this.User.findOne({
+        _id: payload?.id,
+      }).select('socketIds');
       await Promise.all([
         this.User.findByIdAndUpdate(payload.id, {
           socketIds: [
@@ -63,9 +62,9 @@ export class SocketsGateway
       ]);
 
       // fire chat-delivered event for all rooms
-      const rooms = await this.Room.find({ 'users.user': payload.id })
-        .select('_id')
-        .lean();
+      const rooms = await this.Room.find({ 'users.user': payload.id }).select(
+        '_id',
+      );
       const roomIds = rooms.map((room) => room._id.toHexString());
 
       if (roomIds.length > 0)
@@ -107,7 +106,7 @@ export class SocketsGateway
 
       client.join(payload.roomId);
 
-      const user = await this.User.findOne({ socketIds: client.id }).lean();
+      const user = await this.User.findOne({ socketIds: client.id });
 
       await this.Chat.updateMany(
         { to: user._id.toHexString() },
@@ -122,7 +121,7 @@ export class SocketsGateway
         {
           arrayFilters: [{ 'elem.user': user._id.toHexString() }],
         },
-      ).lean();
+      );
 
       client.broadcast
         .to(payload.roomId)
@@ -153,11 +152,10 @@ export class SocketsGateway
     @MessageBody() payload: { roomId: string; message: string },
   ) {
     try {
-      const from = await this.User.findOne({ socketIds: client.id })
-        .select('_id firstName lastName')
-        .lean();
-
-      let room = await this.Room.findById(payload.roomId).lean();
+      const from = await this.User.findOne({ socketIds: client.id }).select(
+        '_id firstName lastName',
+      );
+      let room: IRoom = await this.Room.findById(payload.roomId);
 
       if (!room || !from)
         throw new Error(italic(red('Socket Error: Room or Sender not found')));

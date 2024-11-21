@@ -13,7 +13,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { IUser, User } from '../users/entities/user.entity';
 import { ROLE } from '../users/enums/user.enum';
 import { Chat, IChat } from './entities/chat.entity';
-import { IRoom, Room, RoomUser } from './entities/room.entity';
+import { IRoom, Room, IRoomUser } from './entities/room.entity';
 import { REFERENCE } from './enums/chat.enum';
 import { SocketsGateway } from './sockets.gateway';
 
@@ -155,8 +155,7 @@ export class ChatService {
       this.Chat.find(dbQuery)
         .sort('createdAt')
         .skip(pagination.skip)
-        .limit(pagination.limit)
-        .lean(),
+        .limit(pagination.limit),
       this.Chat.countDocuments(dbQuery),
     ]);
 
@@ -249,7 +248,7 @@ export class ChatService {
   }): Promise<{ room: IRoom; chat: IChat }> {
     const { roomId, from, message } = payload;
 
-    let room = await this.Room.findById(roomId).lean();
+    let room = await this.Room.findById(roomId);
 
     const to = this.getReceiverIds(room.users, from);
 
@@ -280,7 +279,7 @@ export class ChatService {
           { 'elem.user': { $in: to.filter((id) => !readBy.includes(id)) } },
         ],
       },
-    ).lean();
+    );
 
     if (payload.client && roomId) {
       payload.client.broadcast.to(roomId).emit('chat-message', { chat });
@@ -308,19 +307,19 @@ export class ChatService {
     return admin._id;
   }
 
-  getReceiverIds(roomUsers: RoomUser[], from: string): string[] {
+  getReceiverIds(roomUsers: IRoomUser[], from: string): string[] {
     return roomUsers
       .filter((roomUser) => roomUser.user._id.toHexString() !== from)
       .map((roomUser) => roomUser.user._id.toHexString());
   }
 
-  getOnlineUsers(roomUsers: RoomUser[]): string[] {
+  getOnlineUsers(roomUsers: IRoomUser[]): string[] {
     return roomUsers
       .filter((roomUser) => roomUser.user.isOnline)
       .map((roomUser) => roomUser.user._id.toHexString());
   }
 
-  getInChatUsers(roomUsers: RoomUser[], roomId: string): string[] {
+  getInChatUsers(roomUsers: IRoomUser[], roomId: string): string[] {
     const socketIds = this.getSocketIdsInRoom(roomId);
     return roomUsers
       .filter((roomUser) =>
